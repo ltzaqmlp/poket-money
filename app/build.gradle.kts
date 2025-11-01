@@ -52,23 +52,15 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
 
-    // Lifecycle components
+    // Lifecycle components (已清理)
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.4") // Transformations 类包含在这里
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
-    // 添加 transformations 依赖
-    //implementation("androidx.lifecycle:lifecycle-transformations-ktx:2.8.4")
-
-    // 添加这个依赖，它包含了 LiveData 和 Transformations 的功能
-    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.3")
-
-    // 通常你也会需要 ViewModel
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
 
     // Kotlin Coroutines - 核心库
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // 步骤 5 新增：添加 MPAndroidChart 图表库
+    // MPAndroidChart 图表库
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     testImplementation("junit:junit:4.13.2")

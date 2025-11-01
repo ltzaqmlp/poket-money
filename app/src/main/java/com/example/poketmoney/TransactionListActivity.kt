@@ -61,9 +61,10 @@ class TransactionListActivity : AppCompatActivity() {
         }
 
         // 6. 加载数据
-        if (startDate != 0L && endDate != 0L) {
-            viewModel.loadTransactions(startDate, endDate)
-        }
+//        if (startDate != 0L && endDate != 0L) {
+//            viewModel.loadTransactions(startDate, endDate)
+//        }
+        viewModel.loadTransactions(startDate, endDate)
 
         // 步骤 3 修改：设置列表项点击事件，跳转到编辑页
         adapter.onItemClick = { transaction ->
@@ -85,9 +86,7 @@ class TransactionListActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         // 确保在 onResume 时也重新加载数据，以便编辑/删除后能刷新
-        if (startDate != 0L && endDate != 0L) {
-            viewModel.loadTransactions(startDate, endDate)
-        }
+        viewModel.loadTransactions(startDate, endDate)
     }
 }
 

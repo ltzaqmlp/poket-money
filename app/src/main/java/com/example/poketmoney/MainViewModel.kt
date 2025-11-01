@@ -108,7 +108,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     expense = totalExpense,
                     balance = totalIncome - totalExpense,
                     startDate = 0L,
-                    endDate = Long.MAX_VALUE
+                    endDate = 0L
                 )
 
                 _statItems.value = listOf(todayItem, weekItem, monthItem, yearItem, totalItem)

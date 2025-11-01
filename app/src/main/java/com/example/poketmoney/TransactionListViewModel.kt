@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
@@ -12,25 +13,33 @@ class TransactionListViewModel(application: Application) : AndroidViewModel(appl
     private val db = AppDatabase.getDatabase(application)
     private val transactionDao = db.transactionDao()
 
-    // 私有的 MutableLiveData，用于 ViewModel 内部更新
-    private val _transactions = MutableLiveData<List<Transaction>>()
-    // 公开的 LiveData，供 Activity 观察
-    val transactions: LiveData<List<Transaction>> = _transactions
+    // 用于触发 switchMap 的内部状态
+    private val _dateRange = MutableLiveData<Pair<Long, Long>>()
 
-    /**
-     * 根据日期范围加载交易记录
-     * @param startDate 开始时间戳 (毫秒)
-     * @param endDate 结束时间戳 (毫秒)
-     */
-    fun loadTransactions(startDate: Long, endDate: Long) {
-        viewModelScope.launch {
-            try {
-                val result = transactionDao.getTransactionsByDateRange(startDate, endDate)
-                _transactions.value = result
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _transactions.value = emptyList() // 出错时返回空列表
-            }
+    // 根据 dateRange 是否为 null 决定查询方式
+    val transactions: LiveData<List<Transaction>> = _dateRange.switchMap { (start, end) ->
+        if (start == 0L && end == 0L) {
+            // “总计”：加载所有交易
+            transactionDao.getAllTransactions()
+        } else {
+            // 按日期范围查询
+            transactionDao.getTransactionsByDateRangeLiveData(start, end)
         }
     }
+
+    fun loadTransactions(startDate: Long, endDate: Long) {
+        _dateRange.value = Pair(startDate, endDate)
+    }
+
+//    /**
+//     * 加载指定日期范围内的交易记录。
+//     * 如果 startDate 和 endDate 均为 0，则视为“总计”，加载所有记录。
+//     */
+//    fun loadTransactions(startDate: Long, endDate: Long) {
+//        if (startDate == 0L && endDate == 0L) {
+//            _dateRange.value = null // 触发 getAllTransactions()
+//        } else {
+//            _dateRange.value = Pair(startDate, endDate)
+//        }
+//    }
 }
