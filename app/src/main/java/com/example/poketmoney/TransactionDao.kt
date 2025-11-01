@@ -44,4 +44,21 @@ interface TransactionDao {
     // 统计所有记录的总支出
     @Query("SELECT SUM(amount) FROM transactions WHERE type = 'expense'")
     suspend fun getTotalExpense(): Double?
+
+    // --- 柱状图新查询 (替换饼图查询) ---
+
+    // 步骤 6 新增：按天统计指定日期范围内的总收入
+    @Query("SELECT strftime('%m-%d', date / 1000, 'unixepoch') as dayLabel, SUM(amount) as totalAmount FROM transactions " +
+            "WHERE type = 'income' AND date >= :startDate AND date <= :endDate " +
+            "GROUP BY dayLabel " +
+            "ORDER BY dayLabel ASC") // 按日期标签升序排序
+    suspend fun getDailyIncomeSummary(startDate: Long, endDate: Long): List<DailySummary>
+
+    // 步骤 6 新增：按天统计指定日期范围内的总支出
+    @Query("SELECT strftime('%m-%d', date / 1000, 'unixepoch') as dayLabel, SUM(amount) as totalAmount FROM transactions " +
+            "WHERE type = 'expense' AND date >= :startDate AND date <= :endDate " +
+            "GROUP BY dayLabel " +
+            "ORDER BY dayLabel ASC") // 按日期标签升序排序
+    suspend fun getDailyExpenseSummary(startDate: Long, endDate: Long): List<DailySummary>
 }
+

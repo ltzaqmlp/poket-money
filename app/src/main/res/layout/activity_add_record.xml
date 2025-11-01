@@ -141,6 +141,21 @@
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
+        <!-- 步骤 3 新增：删除按钮 (默认隐藏) -->
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/red_500"
+            android:text="@string/delete"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:layout_marginEnd="8dp"
+            tools:visibility="visible" />
+
         <!-- 取消按钮 -->
         <Button
             android:id="@+id/btnCancel"
@@ -151,7 +166,8 @@
             android:text="@string/cancel"
             android:textColor="@color/white"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginEnd="8dp"/>
 
         <!-- 保存按钮 -->
         <Button
