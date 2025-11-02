@@ -1,5 +1,6 @@
 package com.example.poketmoney
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +22,29 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener {
             finish() // 关闭当前 Activity
         }
+
+        // --- 新增代码：为 "收入类别" 按钮设置点击事件 ---
+        binding.btnIncomeCategory.setOnClickListener {
+            // 1. 创建一个 Intent 跳转到 CategoryManageActivity
+            val intent = Intent(this, CategoryManageActivity::class.java)
+
+            // 2. 传入一个 "extra"，告诉 CategoryManageActivity 我们要管理的是 "income" (收入)
+            intent.putExtra("CATEGORY_TYPE", "income")
+
+            // 3. 启动 Activity
+            startActivity(intent)
+        }
+
+        // --- 新增代码：为 "支出类别" 按钮设置点击事件 ---
+        // (虽然我们这次只做收入，但把支出也加上，为未来做准备)
+        binding.btnExpenseCategory.setOnClickListener {
+            val intent = Intent(this, CategoryManageActivity::class.java)
+            // 告诉 CategoryManageActivity 我们要管理的是 "expense" (支出)
+            intent.putExtra("CATEGORY_TYPE", "expense")
+            startActivity(intent)
+        }
+        // --- 新增代码结束 ---
+
 
         // (为保持一致性) 处理窗口边距，确保布局不会与系统栏重叠
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->

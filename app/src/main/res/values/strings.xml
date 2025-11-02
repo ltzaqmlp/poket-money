@@ -23,4 +23,19 @@
 
     <string name="settings_title">设置</string>
 
+    <string name="settings_income_category">收入类别</string>
+    <string name="settings_expense_category">支出类别</string>
+    <string name="category_manage_title_income">收入类别管理</string>
+    <string name="category_manage_title_expense">支出类别管理</string>
+    <string name="no_categories_found">还没有类别，点击 "+" 添加一个吧</string>
+
+    <string name="add_category_dialog_title">新增类别</string>
+    <string name="edit_category_dialog_title">修改类别</string>
+    <string name="category_name_hint">请输入类别名称</string>
+    <string name="delete_category_dialog_title">删除类别</string>
+    <string name="delete_category_dialog_message">确定要删除 "%s" 吗？</string>
+
+    <string name="error_category_name_empty">类别名称不能为空</string>
+    <string name="error_category_name_exists">该类别已存在</string>
+
 </resources>
