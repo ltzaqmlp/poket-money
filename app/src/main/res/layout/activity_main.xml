@@ -8,7 +8,6 @@
     android:background="@color/grey_900"
     tools:context=".MainActivity">
 
-    <!-- 顶部标题栏 -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
@@ -19,14 +18,13 @@
         android:padding="16dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- 左侧菜单图标 -->
         <ImageView
+            android:id="@+id/btnMenu"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_more_vert"
             android:contentDescription="@string/menu" />
 
-        <!-- 中间标题 -->
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -39,7 +37,6 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp" />
 
-        <!-- 右侧信息图标 -->
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -47,7 +44,6 @@
             android:contentDescription="@string/info" />
     </LinearLayout>
 
-    <!-- 步骤 6：将 PieChart 替换为 BarChart -->
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/chart"
         android:layout_width="match_parent"
@@ -59,7 +55,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 统计列表 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewStats"
         android:layout_width="match_parent"
@@ -75,7 +70,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_stat" />
 
-    <!-- 底部操作栏 -->
     <LinearLayout
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"
@@ -85,17 +79,16 @@
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- 编辑按钮 -->
-        <ImageButton
-            android:id="@+id/btnEdit"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/blue_500"
-            android:src="@android:drawable/ic_menu_edit"
-            android:contentDescription="@string/edit" />
+<!--        底部编辑按钮-->
+<!--        <ImageButton-->
+<!--            android:id="@+id/btnEdit"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1"-->
+<!--            android:background="@color/blue_500"-->
+<!--            android:src="@android:drawable/ic_menu_edit"-->
+<!--            android:contentDescription="@string/edit" />-->
 
-        <!-- 新增收入按钮 -->
         <Button
             android:id="@+id/btnAddIncome"
             android:layout_width="0dp"
@@ -107,7 +100,6 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- 新增支出按钮 -->
         <Button
             android:id="@+id/btnAddExpense"
             android:layout_width="0dp"
@@ -121,4 +113,3 @@
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

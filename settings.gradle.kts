@@ -7,6 +7,7 @@ pluginManagement {
                 includeGroupByRegex("androidx.*")
             }
         }
+
         mavenCentral()
         gradlePluginPortal()
     }
@@ -20,5 +21,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "poket money"
+// 修复：将 "poket money" 修改为 "poket-money"
+rootProject.name = "poket-money"
 include(":app")

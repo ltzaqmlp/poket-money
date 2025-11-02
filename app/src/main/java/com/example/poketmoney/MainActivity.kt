@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge() // 启用边缘到边缘显示
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -54,7 +54,9 @@ class MainActivity : AppCompatActivity() {
 
         // 设置 Adapter 的点击事件
         adapter.onItemClick = { statItem ->
+            // 当点击 RecyclerView 的某一项时
             val intent = Intent(this, TransactionListActivity::class.java).apply {
+                // 传入页面标题和日期范围
                 putExtra("PAGE_TITLE", statItem.title)
                 putExtra("START_DATE", statItem.startDate)
                 putExtra("END_DATE", statItem.endDate)
@@ -62,22 +64,31 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // --- 新增代码：设置菜单按钮（三个点）的点击事件 ---
+        binding.btnMenu.setOnClickListener {
+            // 创建一个 Intent 来启动 SettingsActivity
+            val intent = Intent(this, SettingsActivity::class.java)
+            // 启动 Activity
+            startActivity(intent)
+        }
+        // --- 新增代码结束 ---
+
         // 设置按钮点击事件
         binding.btnAddIncome.setOnClickListener {
             val intent = Intent(this, AddRecordActivity::class.java).apply {
-                putExtra("IS_INCOME", true)
+                putExtra("IS_INCOME", true) // 传入 "是收入" 的标记
             }
             startActivity(intent)
         }
 
         binding.btnAddExpense.setOnClickListener {
             val intent = Intent(this, AddRecordActivity::class.java).apply {
-                putExtra("IS_INCOME", false)
+                putExtra("IS_INCOME", false) // 传入 "不是收入" (即支出) 的标记
             }
             startActivity(intent)
         }
 
-        // 为根视图设置边距
+        // 为根视图设置边距，以避免系统栏遮挡
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -88,6 +99,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         // 每次 Activity 恢复时，都调用 ViewModel 的方法来刷新数据
+        // 这确保了从其他页面（如添加/编辑页）返回时，首页数据是最新的
         viewModel.loadStats()
     }
 
@@ -101,14 +113,14 @@ class MainActivity : AppCompatActivity() {
             setDrawGridBackground(false) // 不绘制网格背景
 
             // X 轴设置
-            xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.position = XAxis.XAxisPosition.BOTTOM // X轴在底部
             xAxis.setDrawGridLines(false) // 不绘制 X 轴网格线
             xAxis.granularity = 1f // X 轴最小间隔
-            xAxis.textColor = ContextCompat.getColor(this@MainActivity, R.color.white) // 假设你有 R.color.white
+            xAxis.textColor = ContextCompat.getColor(this@MainActivity, R.color.white) // 设置 X 轴标签颜色
 
             // Y 轴（左侧）
             axisLeft.setDrawGridLines(true) // 绘制 Y 轴网格线
-            axisLeft.textColor = ContextCompat.getColor(this@MainActivity, R.color.grey_400) // 假设你有 R.color.grey_400
+            axisLeft.textColor = ContextCompat.getColor(this@MainActivity, R.color.grey_400) // 设置 Y 轴标签颜色
             axisLeft.axisMinimum = 0f // Y 轴从 0 开始
 
             // Y 轴（右侧）
@@ -123,6 +135,7 @@ class MainActivity : AppCompatActivity() {
     // 步骤 6 新增：更新柱状图数据
     private fun updateBarChart(data: BarData?, labels: List<String>?) {
         if (data == null || labels == null) {
+            // 如果数据为空，清空图表
             binding.chart.clear()
             binding.chart.invalidate()
             return
@@ -133,12 +146,12 @@ class MainActivity : AppCompatActivity() {
         binding.chart.xAxis.labelCount = labels.size
 
         // 组合柱状图的设置
-        val groupSpace = 0.1f
-        val barSpace = 0.05f // (0.4f * 2) + 0.05f * 2 + 0.1f = 1.0f
-        data.barWidth = 0.4f
+        val groupSpace = 0.1f // 组间距
+        val barSpace = 0.05f // 柱间距 (每组内)
+        data.barWidth = 0.4f // 柱子宽度
 
         binding.chart.data = data
-        binding.chart.groupBars(0f, groupSpace, barSpace) // 从 0 开始组合
+        binding.chart.groupBars(0f, groupSpace, barSpace) // 从 0f 开始组合
         binding.chart.invalidate() // 刷新图表
     }
 }

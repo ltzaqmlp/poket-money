@@ -20,14 +20,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- AddRecordActivity 声明 -->
         <activity
             android:name=".AddRecordActivity"
             android:exported="false" />
 
-        <!-- 步骤 2 新增：注册 TransactionListActivity -->
         <activity
             android:name=".TransactionListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SettingsActivity"
             android:exported="false" />
 
     </application>
