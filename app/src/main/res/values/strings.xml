@@ -52,4 +52,18 @@
     <string name="error_ledger_name_exists">该账本已存在</string>
     <string name="error_ledger_delete_last">无法删除最后一个账本</string>
 
+    <string name="settings_account_management">账户管理</string>
+    <string name="account_manage_title">账户管理</string>
+    <string name="no_accounts_found">还没有账户，点击 "+" 添加一个吧</string>
+    <string name="add_account_title">新增账户</string>
+    <string name="account_type_hint">账户类别 (如: 现金, 储蓄卡)</string>
+    <string name="currency_hint">币种</string>
+    <string name="balance_hint">初始余额</string>
+
+    <string name="error_account_validation_empty">账户类别和初始余额不能为空</string>
+    <string name="edit_account_title">修改账户</string>
+    <string name="delete_account_dialog_title">删除账户</string>
+    <string name="delete_account_dialog_message">确定要删除 "%s" 吗？\n\n<font color='#FF5252'><b>警告：</b>删除账户后，与该账户关联的所有交易（如果未来有关联）也可能被删除或失效！</font></string>
+    <string name="error_account_delete_last">无法删除最后一个账户</string>
+
 </resources>

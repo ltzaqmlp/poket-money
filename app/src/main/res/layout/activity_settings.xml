@@ -22,18 +22,20 @@
             android:layout_height="24dp"
             android:src="@android:drawable/ic_menu_revert"
             android:contentDescription="@string/back"
-            app:tint="@color/white" /> <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="@string/settings_title"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/settings_title"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp" />
 
         <View
             android:layout_width="24dp"
@@ -60,19 +62,21 @@
             android:layout_marginBottom="8dp"
             android:clickable="true"
             android:focusable="true"
-            android:drawableEnd="@android:drawable/ic_media_play" /> <TextView
-        android:id="@+id/btnExpenseCategory"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/settings_expense_category"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:padding="12dp"
-        android:background="@color/grey_800"
-        android:layout_marginBottom="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:drawableEnd="@android:drawable/ic_media_play" />
+            app:drawableEndCompat="@android:drawable/ic_media_play" />
+
+        <TextView
+            android:id="@+id/btnExpenseCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_expense_category"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:background="@color/grey_800"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:drawableEndCompat="@android:drawable/ic_media_play" />
 
         <TextView
             android:id="@+id/btnLedgerManagement"
@@ -86,7 +90,21 @@
             android:layout_marginBottom="8dp"
             android:clickable="true"
             android:focusable="true"
-            android:drawableEnd="@android:drawable/ic_media_play" />
+            app:drawableEndCompat="@android:drawable/ic_media_play" />
+
+        <TextView
+            android:id="@+id/btnAccountManagement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_account_management"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:background="@color/grey_800"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:drawableEndCompat="@android:drawable/ic_media_play" />
 
     </LinearLayout>
 

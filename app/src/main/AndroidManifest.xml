@@ -40,6 +40,10 @@
             android:name=".LedgerManageActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".AccountManageActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

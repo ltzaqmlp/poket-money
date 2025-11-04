@@ -11,14 +11,15 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * !!! 数据库升级 (已修复) !!!
  */
 @Database(
-    entities = [Transaction::class, Ledger::class],
-    version = 2, // 版本升级为 2
+    entities = [Transaction::class, Ledger::class, Account::class],
+    version = 3, // (保持 v3 不变)
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun transactionDao(): TransactionDao
     abstract fun ledgerDao(): LedgerDao
+    abstract fun accountDao(): AccountDao
 
     companion object {
         @Volatile
@@ -84,6 +85,29 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * (无变化) 账户功能的 v2 -> v3 迁移脚本
+         */
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // 步骤 1: 创建 "accounts" (账户) 表
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `accounts` (" +
+                            "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`type` TEXT NOT NULL, " +
+                            "`currency` TEXT NOT NULL, " +
+                            "`balance` REAL NOT NULL, " +
+                            "`note` TEXT)"
+                )
+
+                // 步骤 2: 为 "type" 列创建索引
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_accounts_type` ON `accounts` (`type`)"
+                )
+            }
+        }
+
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -91,8 +115,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "poket_money_database"
                 )
-                    // 5. 将 *已修复* 的迁移脚本添加到数据库构建器中
-                    .addMigrations(MIGRATION_1_2)
+                    // 5. 将 *两个* (已修复的 v1->v2 和 v2->v3) 迁移脚本添加到构建器中
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
 
                 INSTANCE = instance
