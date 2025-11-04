@@ -36,6 +36,10 @@
             android:name=".CategoryManageActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".LedgerManageActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

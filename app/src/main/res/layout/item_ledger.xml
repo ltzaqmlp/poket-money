@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ledgerItemContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/grey_800"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:gravity="center_vertical"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"> <TextView
+    android:id="@+id/tvLedgerName"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:textColor="@color/white"
+    android:textSize="16sp"
+    tools:text="生活账本" />
+
+    <ImageButton
+        android:id="@+id/btnEditLedger"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/ic_menu_edit"
+
+        app:tint="@color/grey_400"
+
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/edit"
+        android:layout_marginStart="8dp"/>
+
+</LinearLayout>

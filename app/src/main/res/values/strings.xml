@@ -38,4 +38,18 @@
     <string name="error_category_name_empty">类别名称不能为空</string>
     <string name="error_category_name_exists">该类别已存在</string>
 
+    <string name="settings_ledger_management">账本管理</string>
+    <string name="ledger_manage_title">账本管理</string>
+    <string name="no_ledgers_found">还没有账本，点击 "+" 添加一个吧</string>
+
+    <string name="add_ledger_dialog_title">新增账本</string>
+    <string name="edit_ledger_dialog_title">修改账本</string>
+    <string name="ledger_name_hint">请输入账本名称</string>
+    <string name="delete_ledger_dialog_title">删除账本</string>
+    <string name="delete_ledger_dialog_message">确定要删除 "%s" 吗？\n\n<font color='#FF5252'><b>警告：</b>该账本下的所有交易记录将被永久删除！</font></string>
+
+    <string name="error_ledger_name_empty">账本名称不能为空</string>
+    <string name="error_ledger_name_exists">该账本已存在</string>
+    <string name="error_ledger_delete_last">无法删除最后一个账本</string>
+
 </resources>

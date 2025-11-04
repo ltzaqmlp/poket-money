@@ -69,9 +69,24 @@
         android:textSize="16sp"
         android:padding="12dp"
         android:background="@color/grey_800"
+        android:layout_marginBottom="8dp"
         android:clickable="true"
         android:focusable="true"
         android:drawableEnd="@android:drawable/ic_media_play" />
+
+        <TextView
+            android:id="@+id/btnLedgerManagement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_ledger_management"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:background="@color/grey_800"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:drawableEnd="@android:drawable/ic_media_play" />
 
     </LinearLayout>
 
