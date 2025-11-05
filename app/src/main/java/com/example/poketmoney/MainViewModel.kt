@@ -20,16 +20,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val transactionDao = db.transactionDao()
     private val ledgerDao = db.ledgerDao()
 
+    // (无变化)
     private val _statItems = MutableLiveData<List<StatItem>>()
     val statItems: LiveData<List<StatItem>> = _statItems
 
+    // (无变化)
     private val _barChartData = MutableLiveData<Pair<BarData, List<String>>>()
     val barChartData: LiveData<Pair<BarData, List<String>>> = _barChartData
 
+    // (无变化)
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val dayFormat = SimpleDateFormat("MM-dd", Locale.getDefault())
 
-    // (无变化) 存储当前激活的账本ID
+    // (无变化)
     private val _activeLedgerId = MutableLiveData<Long>()
 
     // (无变化) 暴露 "当前激活账本的名称"
@@ -39,47 +42,87 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // (无变化) 初始化
-    init {
-        viewModelScope.launch {
-            var currentId = LedgerManager.getActiveLedgerId(application)
+    // 1. !!! 新增：暴露 "账本总数" LiveData !!!
+    /**
+     * (新增) 暴露账本总数的 LiveData。
+     * MainActivity 将观察此数据，以确定是否为 "新用户" (count == 0)。
+     * 它使用了我们在 LedgerDao 中添加的 getLedgerCount()。
+     */
+    val ledgerCount: LiveData<Int> = ledgerDao.getLedgerCount()
 
-            val firstLedger = ledgerDao.getFirstLedger()
-            if (firstLedger == null) {
-                currentId = 1L
+
+    /**
+     * 2. !!! 修改：'init' 块 !!!
+     * 我们不再在 init 启动时自动加载数据，
+     * 因为我们必须首先检查 ledgerCount 是否为 0。
+     */
+    init {
+        // (空) - 数据加载现在由 loadDataForActiveLedger() 触发
+    }
+
+    /**
+     * 3. !!! 新增：数据加载函数 !!!
+     * (我们将之前在 'init' 中的逻辑移到了这里)
+     * MainActivity 将在确认 ledgerCount > 0 后调用此函数。
+     */
+    fun loadDataForActiveLedger() {
+        viewModelScope.launch {
+            // (这是之前 init 中的逻辑)
+            val currentId = LedgerManager.getActiveLedgerId(getApplication())
+
+            // (安全检查：如果 LedgerManager 存的 ID 不存在，
+            //  我们就获取第一个账本的 ID 并设为激活)
+            val ledgerExists = ledgerDao.getLedgerById(currentId).value != null
+            if (!ledgerExists) {
+                // (这种情况会在 "默认账本" 被删除后发生)
+                val firstLedger = ledgerDao.getFirstLedger()
+                if (firstLedger != null) {
+                    // 切换到数据库中的第一个账本
+                    LedgerManager.setActiveLedgerId(getApplication(), firstLedger.id)
+                    _activeLedgerId.value = firstLedger.id
+                } else {
+                    // (这种情况理论上不应该发生，因为 ledgerCount > 0)
+                    // 但作为防护，我们什么也不加载
+                    return@launch
+                }
             } else {
-                currentId = LedgerManager.getActiveLedgerId(application)
+                _activeLedgerId.value = currentId
             }
 
-            _activeLedgerId.value = currentId
+            // (无变化)
             loadStats()
         }
     }
 
+
     /**
-     * 4. !!! BUG 修复：移除了重复的函数 !!!
-     * 这是 checkActiveLedger() 唯一的、正确的版本。
+     * (无变化) checkActiveLedger()
+     * 用于从 "新增页" 或 "账本管理页" 返回时刷新数据。
      */
     fun checkActiveLedger() {
         val newLedgerId = LedgerManager.getActiveLedgerId(getApplication())
         if (newLedgerId != _activeLedgerId.value) {
-            // 账本 ID 已经改变了！ (例如从 "账本管理页" 返回)
+            // 账本 ID 已经改变了！
             _activeLedgerId.value = newLedgerId
             loadStats() // 重新加载新账本的数据
         } else {
             // 账本 ID 没有变，但我们可能从 "新增记录页" 返回了
-            // 仍然需要刷新数据
-            loadStats()
+            loadStats() // 仍然需要刷新数据
         }
     }
-
-    // 5. (!!! 已移除 !!!) 这里是之前那个重复的、错误的函数
 
     // (无变化) loadStats()
     fun loadStats() {
         viewModelScope.launch {
             try {
-                val ledgerId = _activeLedgerId.value ?: return@launch
+                // (确保 ID 已设置)
+                val ledgerId = _activeLedgerId.value ?: run {
+                    // 如果 ID 仍然为空 (在 loadDataForActiveLedger 失败时)，
+                    // 尝试最后一次加载
+                    val currentId = LedgerManager.getActiveLedgerId(getApplication())
+                    _activeLedgerId.value = currentId
+                    currentId
+                }
 
                 val calendar = Calendar.getInstance()
 

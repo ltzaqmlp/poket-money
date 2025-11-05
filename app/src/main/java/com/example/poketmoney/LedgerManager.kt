@@ -6,7 +6,7 @@ import android.content.Context
  * LedgerManager 是一个单例对象 (object)，
  * 负责在本地持久化存储 "当前激活的账本ID"。
  *
- * 它使用 SharedPreferences，这是一个轻量级的键值对存储。
+ * (!!! 已修改：DEFAULT_LEDGER_ID 现在是 internal !!!)
  */
 object LedgerManager {
 
@@ -18,11 +18,10 @@ object LedgerManager {
 
     /**
      * 默认账本ID。
-     * 在数据库迁移 (MIGRATION_1_2) 中，我们插入的第一个账本 ("默认账本")
-     * 的自增 ID 几乎可以肯定是 1。
-     * 我们使用 1L 作为 App 首次运行的默认值。
+     * (!!! 修复：从 private 修改为 internal !!!)
+     * 这样 AppDatabase 迁移脚本才能访问它。
      */
-    private const val DEFAULT_LEDGER_ID = 1L
+    internal const val DEFAULT_LEDGER_ID = 1L
 
     /**
      * 保存 "当前激活的账本ID"。

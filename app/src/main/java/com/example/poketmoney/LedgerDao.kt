@@ -26,7 +26,7 @@ interface LedgerDao {
     @Delete
     suspend fun delete(ledger: Ledger)
 
-    // (已修复Bug) 按 ID 倒序，确保最新的在最上面
+    // (无变化) 按 ID 倒序，确保最新的在最上面
     @Query("SELECT * FROM ledgers ORDER BY id DESC")
     fun getAllLedgers(): LiveData<List<Ledger>>
 
@@ -38,13 +38,16 @@ interface LedgerDao {
     @Query("SELECT * FROM ledgers ORDER BY id ASC LIMIT 1")
     suspend fun getFirstLedger(): Ledger?
 
-    // --- (!!! 1. 新增查询 !!!) ---
-    /**
-     * 根据 ID 查询单个账本。
-     * 我们返回 LiveData，以便 MainViewModel 可以观察它。
-     * @param id 要查询的账本 ID
-     * @return 返回一个包含该账本的 LiveData (可能为 null)
-     */
+    // (无变化)
     @Query("SELECT * FROM ledgers WHERE id = :id")
     fun getLedgerById(id: Long): LiveData<Ledger?>
+
+    // --- (!!! 1. 新增查询 !!!) ---
+    /**
+     * (新增) 查询账本的总数。
+     * 我们将用这个来判断是否为 "新用户" (count == 0)。
+     * 返回 LiveData 是为了让 MainViewModel 能够观察这个计数值。
+     */
+    @Query("SELECT COUNT(id) FROM ledgers")
+    fun getLedgerCount(): LiveData<Int>
 }

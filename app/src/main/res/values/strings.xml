@@ -6,7 +6,6 @@
     <string name="edit">编辑</string>
     <string name="add_income">新增收入</string>
     <string name="add_expense">新增支出</string>
-
     <string name="back">返回</string>
     <string name="amount_hint">金额</string>
     <string name="category_hint">分类</string>
@@ -14,44 +13,34 @@
     <string name="note_hint">备注 (可选)</string>
     <string name="cancel">取消</string>
     <string name="save">保存</string>
-
     <string name="transaction_list_title">交易明细</string>
     <string name="no_transactions_found">未找到相关记录</string>
-
     <string name="edit_record">编辑记录</string>
     <string name="delete">删除</string>
-
     <string name="settings_title">设置</string>
-
     <string name="settings_income_category">收入类别</string>
     <string name="settings_expense_category">支出类别</string>
     <string name="category_manage_title_income">收入类别管理</string>
     <string name="category_manage_title_expense">支出类别管理</string>
     <string name="no_categories_found">还没有类别，点击 "+" 添加一个吧</string>
-
     <string name="add_category_dialog_title">新增类别</string>
     <string name="edit_category_dialog_title">修改类别</string>
     <string name="category_name_hint">请输入类别名称</string>
     <string name="delete_category_dialog_title">删除类别</string>
     <string name="delete_category_dialog_message">确定要删除 "%s" 吗？</string>
-
     <string name="error_category_name_empty">类别名称不能为空</string>
     <string name="error_category_name_exists">该类别已存在</string>
-
     <string name="settings_ledger_management">账本管理</string>
     <string name="ledger_manage_title">账本管理</string>
     <string name="no_ledgers_found">还没有账本，点击 "+" 添加一个吧</string>
-
     <string name="add_ledger_dialog_title">新增账本</string>
     <string name="edit_ledger_dialog_title">修改账本</string>
     <string name="ledger_name_hint">请输入账本名称</string>
     <string name="delete_ledger_dialog_title">删除账本</string>
     <string name="delete_ledger_dialog_message">确定要删除 "%s" 吗？\n\n<font color='#FF5252'><b>警告：</b>该账本下的所有交易记录将被永久删除！</font></string>
-
     <string name="error_ledger_name_empty">账本名称不能为空</string>
     <string name="error_ledger_name_exists">该账本已存在</string>
     <string name="error_ledger_delete_last">无法删除最后一个账本</string>
-
     <string name="settings_account_management">账户管理</string>
     <string name="account_manage_title">账户管理</string>
     <string name="no_accounts_found">还没有账户，点击 "+" 添加一个吧</string>
@@ -59,11 +48,16 @@
     <string name="account_type_hint">账户类别 (如: 现金, 储蓄卡)</string>
     <string name="currency_hint">币种</string>
     <string name="balance_hint">初始余额</string>
-
     <string name="error_account_validation_empty">账户类别和初始余额不能为空</string>
     <string name="edit_account_title">修改账户</string>
     <string name="delete_account_dialog_title">删除账户</string>
     <string name="delete_account_dialog_message">确定要删除 "%s" 吗？\n\n<font color='#FF5252'><b>警告：</b>删除账户后，与该账户关联的所有交易（如果未来有关联）也可能被删除或失效！</font></string>
-    <string name="error_account_delete_last">无法删除最后一个账户</string>
+    <string name="error_account_delete_last">无法删除最后一个账本</string>
 
+    <string name="ledger_manage_welcome_prompt">欢迎使用！请先创建一个您的专属账本才能开始记账。</string>
+
+    <string name="account_hint">账户</string>
+
+    <string name="select_account_title">选择账户</string>
+    <string name="add_new_account">+ 新增账户</string>
 </resources>

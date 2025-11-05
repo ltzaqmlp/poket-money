@@ -8,35 +8,40 @@ import androidx.room.PrimaryKey
 /**
  * Transaction (交易) 实体类
  *
- * !!! 这是数据库升级的核心 !!!
- * 我们正在修改这个表结构。
+ * !!! 数据库升级 (v3 -> v4) !!!
  *
- * @param id 交易的唯一ID。
- * @param amount 金额。
- * @param type "income" (收入) 或 "expense" (支出)。
- * @param category 类别 (例如 "工资", "餐饮")。
- * @param date 时间戳 (毫秒)。
- * @param note 备注 (可选)。
- * @param ledgerId (!!! 新增字段 !!!)
+ * @param ledgerId (无变化) 关联到 Ledger (账本) 表。
+ * @param accountId (!!! 新增字段 !!!)
  * 这个字段是一个外键 (ForeignKey)，
- * 它关联到 Ledger (账本) 表的 'id' 列。
- * 它告诉我们这笔交易属于哪个账本。
+ * 它关联到 Account (账户) 表的 'id' 列。
+ * 它告诉我们这笔交易是从哪个账户 "支付" 或 "存入" 的。
  */
 @Entity(
     tableName = "transactions",
-    // 1. 定义外键约束
+    // 1. !!! 修改：添加了第二个外键 (ForeignKey) !!!
     foreignKeys = [
+        // (无变化) 账本外键
         ForeignKey(
-            entity = Ledger::class,       // 关联到 Ledger 实体类
-            parentColumns = ["id"],     // 关联到 Ledger 表的 "id" 列
-            childColumns = ["ledgerId"],  // 关联到本表 (transactions) 的 "ledgerId" 列
-            onDelete = ForeignKey.CASCADE // 级联删除：如果一个账本被删除了，
-            // 那么属于该账本的所有交易记录也会被自动删除。
-            // (这符合我们的业务逻辑)
+            entity = Ledger::class,
+            parentColumns = ["id"],
+            childColumns = ["ledgerId"],
+            onDelete = ForeignKey.CASCADE // (删除账本，会删除所有交易)
+        ),
+        // (!!! 新增 !!!) 账户外键
+        ForeignKey(
+            entity = Account::class,      // 关联到 Account 实体类
+            parentColumns = ["id"],     // 关联到 Account 表的 "id" 列
+            childColumns = ["accountId"], // 关联到本表 (transactions) 的 "accountId" 列
+            onDelete = ForeignKey.SET_NULL // (安全选项) 删除账户，
+            // 交易记录的 accountId 会被设为 null，
+            // 但交易记录本身 *不会* 被删除。
         )
     ],
-    // 2. 为新列 ledgerId 创建索引，这可以加快按账本ID查询的速度
-    indices = [Index(value = ["ledgerId"])]
+    // 2. !!! 修改：添加了第二个索引 !!!
+    indices = [
+        Index(value = ["ledgerId"]),   // (旧索引)
+        Index(value = ["accountId"])  // (!!! 新增索引 !!!)
+    ]
 )
 data class Transaction(
     @PrimaryKey(autoGenerate = true)
@@ -46,9 +51,11 @@ data class Transaction(
     val category: String?,
     val date: Long, // 时间戳 (毫秒)
     val note: String?,
+    val ledgerId: Long, // (来自 v1->v2 的迁移)
 
-    // !!! 新增的字段 !!!
-    // 我们必须给它一个默认值 (e.g., 0L)，
-    // 但在实际的数据库迁移 (Migration) 中我们会处理旧数据的赋值。
-    val ledgerId: Long
+    // 3. !!! 新增的字段 !!!
+    // 它必须是可为空的 (Long?)，
+    // 这样 v2->v3 迁移才能成功 (旧交易没有 accountId)，
+    // 并且 onDelete = SET_NULL 才能工作。
+    val accountId: Long?
 )
