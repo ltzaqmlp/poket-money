@@ -22,12 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var adapter: StatItemAdapter
 
-    // 1. !!! 新增：用于防止重复检查的标志位 !!!
-    /**
-     * 这是一个标志位，用于确保 "首次启动" 检查 (observeLedgerCount)
-     * 只在 Activity 创建时执行一次，
-     * 防止在 (例如) 旋转屏幕后再次触发强制跳转。
-     */
+    // (无变化)
     private var hasCheckedFirstLaunch = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,29 +31,25 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 初始化 ViewModel
+        // (无变化)
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
-        // (无变化) 初始化柱状图样式
+        // (!!! 修改：调用 setupBarChart (现在内部已修改) !!!)
         setupBarChart()
 
-        // (无变化) 初始化 Adapter
+        // (无变化)
         adapter = StatItemAdapter()
 
-        // (无变化) 设置 RecyclerView
+        // (无变化)
         binding.recyclerViewStats.adapter = adapter
         binding.recyclerViewStats.layoutManager = LinearLayoutManager(this)
 
 
-        // --- (!!! 关键修改：重构所有 Observers !!!) ---
-
-        // 2. !!! 新增：调用新的 Observers 设置函数 !!!
+        // (无变化)
         setupObservers()
 
-        // --- (修改结束) ---
 
-
-        // (无变化) 设置 Adapter 的点击事件
+        // (无变化)
         adapter.onItemClick = { statItem ->
             val intent = Intent(this, TransactionListActivity::class.java).apply {
                 putExtra("PAGE_TITLE", statItem.title)
@@ -68,13 +59,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // (无变化) 设置菜单按钮
+        // (无变化)
         binding.btnMenu.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
 
-        // (无变化) 设置按钮点击事件
+        // (无变化)
         binding.btnAddIncome.setOnClickListener {
             val intent = Intent(this, AddRecordActivity::class.java).apply {
                 putExtra("IS_INCOME", true)
@@ -90,7 +81,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // (无变化) 为根视图设置边距
+        // (无变化)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -99,70 +90,52 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 3. !!! 新增：设置所有 LiveData 观察者 !!!
-     * 我们将所有 Observers 集中到这里
+     * (无变化)
      */
     private fun setupObservers() {
-        // (无变化) 观察统计项
+        // (无变化)
         viewModel.statItems.observe(this) { statItems ->
             adapter.submitList(statItems)
         }
 
-        // (无变化) 观察柱状图
+        // (无变化)
         viewModel.barChartData.observe(this) { (barData, labels) ->
             updateBarChart(barData, labels)
         }
 
-        // (无变化) 观察账本名称 (用于标题)
-        //
+        // (无变化)
         viewModel.activeLedgerName.observe(this) { ledgerName ->
             binding.tvTitleLedgerName.text = ledgerName ?: getString(R.string.app_name)
         }
 
-        // 4. !!! 关键：观察 "账本总数" 以实现首次启动逻辑 !!!
-        //
+        // (无变化)
         viewModel.ledgerCount.observe(this) { count ->
-            // (使用标志位防止重复执行)
             if (hasCheckedFirstLaunch) return@observe
 
             if (count == 0) {
-                // --- 强制模式 (账本数量为 0) ---
-                hasCheckedFirstLaunch = true // (标记为已检查)
-
-                // 启动 LedgerManageActivity (账本管理页)
+                hasCheckedFirstLaunch = true
                 val intent = Intent(this, LedgerManageActivity::class.java)
-                // (传入 "强制模式" 标志)
                 intent.putExtra("IS_FIRST_LAUNCH", true)
                 startActivity(intent)
 
             } else if (count > 0) {
-                // --- 正常模式 (账本已存在) ---
-                hasCheckedFirstLaunch = true // (标记为已检查)
-
-                // (调用我们在 MainViewModel 中创建的数据加载函数)
+                hasCheckedFirstLaunch = true
                 viewModel.loadDataForActiveLedger()
             }
-            // (如果 count 还在 null 的状态, 我们什么也不做，等待 LiveData 更新)
         }
     }
 
     /**
-     * (!!! 已修改 !!!) onResume()
+     * (无变化)
      */
     override fun onResume() {
         super.onResume()
-
-        // (!!! 修改 !!!)
-        // 只有当我们 *不是* 在 "首次启动" 流程中时
-        // (即，我们已经有账本了)，
-        // 我们才在 onResume 时刷新数据。
         if (hasCheckedFirstLaunch) {
-            //
             viewModel.checkActiveLedger()
         }
     }
 
-    // (无变化) 初始化柱状图样式
+    // (!!! 2. 关键修改：setupBarChart() !!!)
     private fun setupBarChart() {
         binding.chart.apply {
             description.isEnabled = false
@@ -170,13 +143,19 @@ class MainActivity : AppCompatActivity() {
             setDrawValueAboveBar(false)
             setDrawGridBackground(false)
 
+            // (!!! 修改：使用动态颜色 !!!)
+            val primaryTextColor = ContextCompat.getColor(this@MainActivity, R.color.text_primary_color)
+            val secondaryTextColor = ContextCompat.getColor(this@MainActivity, R.color.text_secondary_color)
+
+            legend.textColor = primaryTextColor // (新增)
+
             xAxis.position = XAxis.XAxisPosition.BOTTOM
             xAxis.setDrawGridLines(false)
             xAxis.granularity = 1f
-            xAxis.textColor = ContextCompat.getColor(this@MainActivity, R.color.white)
+            xAxis.textColor = primaryTextColor // (修改)
 
             axisLeft.setDrawGridLines(true)
-            axisLeft.textColor = ContextCompat.getColor(this@MainActivity, R.color.grey_400)
+            axisLeft.textColor = secondaryTextColor // (修改)
             axisLeft.axisMinimum = 0f
 
             axisRight.isEnabled = false
@@ -186,7 +165,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // (无变化) 更新柱状图数据
+    // (无变化)
     private fun updateBarChart(data: BarData?, labels: List<String>?) {
         if (data == null || labels == null) {
             binding.chart.clear()

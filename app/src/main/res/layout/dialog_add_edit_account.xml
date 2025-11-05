@@ -4,14 +4,14 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="20dp"
-    android:background="@color/grey_800">
+    android:background="@color/app_surface_color">
 
     <TextView
         android:id="@+id/tvDialogTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add_account_title"
-        android:textColor="@color/white"
+        android:textColor="@color/text_primary_color"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
@@ -20,7 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/account_type_hint"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:textColorHint="@color/text_hint_color">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etAccountType"
@@ -28,21 +29,22 @@
             android:layout_height="wrap_content"
             android:inputType="text"
             android:maxLines="1"
-            android:textColor="@color/white"
-            android:textColorHint="@color/grey_400" />
+            android:textColor="@color/text_primary_color"
+            android:textColorHint="@color/text_hint_color" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/currency_hint"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:textColorHint="@color/text_hint_color">
 
         <Spinner
             android:id="@+id/spinnerCurrency"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/grey_800"
+            android:background="@color/app_surface_color"
             android:padding="12dp"
             android:layout_gravity="center_vertical" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -51,22 +53,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/balance_hint"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:textColorHint="@color/text_hint_color">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etBalance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"
-            android:textColor="@color/white"
-            android:textColorHint="@color/grey_400" />
+            android:textColor="@color/text_primary_color"
+            android:textColorHint="@color/text_hint_color" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/note_hint"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:textColorHint="@color/text_hint_color">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etNote"
@@ -76,8 +80,8 @@
             android:minLines="2"
             android:maxLines="3"
             android:scrollbars="vertical"
-            android:textColor="@color/white"
-            android:textColorHint="@color/grey_400" />
+            android:textColor="@color/text_primary_color"
+            android:textColorHint="@color/text_hint_color" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
@@ -92,7 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/cancel"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary_color"
             style="@style/Widget.MaterialComponents.Button.TextButton" />
 
         <Button

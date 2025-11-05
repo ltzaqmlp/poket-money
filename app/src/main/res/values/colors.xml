@@ -3,7 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- 之前步骤添加的颜色 -->
     <color name="red_500">#F44336</color>
     <color name="green_500">#4CAF50</color>
     <color name="blue_300">#64B5F6</color>
@@ -12,14 +11,20 @@
     <color name="grey_900">#212121</color>
     <color name="grey_400">#BDBDBD</color>
 
-    <!-- 图表颜色 (来自上次修复) -->
     <color name="income_color">#69F0AE</color>
     <color name="expense_color">#FF5252</color>
 
-    <!-- !!! 本次修复新增的颜色 !!! -->
     <color name="grey_700">#616161</color>
     <color name="grey_800">#424242</color>
-    <color name="balance_color">#FFFFFF</color> <!-- 余额颜色，我们先设为白色 -->
+
+    <color name="balance_color">@color/black</color> <color name="app_background_color">@color/white</color>
+
+    <color name="app_surface_color">@color/white</color>
+
+    <color name="text_primary_color">@color/black</color>
+
+    <color name="text_secondary_color">@color/grey_700</color>
+
+    <color name="text_hint_color">@color/grey_500</color>
 
 </resources>
-

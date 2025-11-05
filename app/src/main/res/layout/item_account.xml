@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="@color/grey_800"
+    android:background="@color/app_surface_color"
     android:layout_marginStart="8dp"
     android:layout_marginEnd="8dp"
     android:layout_marginTop="4dp"
@@ -30,7 +30,7 @@
             android:id="@+id/tvAccountType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary_color"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="现金" />
@@ -39,7 +39,7 @@
             android:id="@+id/tvAccountNote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey_400"
+            android:textColor="@color/text_secondary_color"
             android:textSize="12sp"
             tools:text="日常开销使用"
             android:visibility="gone"
@@ -57,7 +57,7 @@
             android:id="@+id/tvAccountBalance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary_color"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="1000.00" />
@@ -66,7 +66,7 @@
             android:id="@+id/tvAccountCurrency"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey_500"
+            android:textColor="@color/text_secondary_color"
             android:textSize="12sp"
             tools:text="CNY (人民币)" />
 
@@ -77,7 +77,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:src="@android:drawable/ic_menu_edit"
-        app:tint="@color/grey_400"
+        app:tint="@color/text_secondary_color"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/edit"
         android:layout_marginStart="8dp"/>

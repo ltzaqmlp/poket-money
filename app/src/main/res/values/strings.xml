@@ -57,7 +57,12 @@
     <string name="ledger_manage_welcome_prompt">欢迎使用！请先创建一个您的专属账本才能开始记账。</string>
 
     <string name="account_hint">账户</string>
-
     <string name="select_account_title">选择账户</string>
     <string name="add_new_account">+ 新增账户</string>
+
+    <string name="settings_background_management">背景设置</string>
+    <string name="background_settings_title">背景设置</string>
+    <string name="theme_light">浅色模式</string>
+    <string name="theme_dark">深色模式</string>
+    <string name="theme_system">跟随系统</string>
 </resources>

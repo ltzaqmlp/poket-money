@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -42,6 +43,10 @@
 
         <activity
             android:name=".AccountManageActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".BackgroundSettingsActivity"
             android:exported="false" />
 
     </application>

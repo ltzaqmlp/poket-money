@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_background_color"
-    tools:context=".TransactionListActivity">
+    tools:context=".BackgroundSettingsActivity">
 
     <LinearLayout
         android:id="@+id/topBar"
@@ -15,6 +15,7 @@
         android:gravity="center_vertical"
         android:padding="16dp"
         app:layout_constraintTop_toTopOf="parent">
+
         <ImageView
             android:id="@+id/btnBack"
             android:layout_width="24dp"
@@ -22,44 +23,60 @@
             android:src="@android:drawable/ic_menu_revert"
             android:contentDescription="@string/back"
             app:tint="@color/white" />
+
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            tools:text="今天的明细"
+            android:text="@string/background_settings_title"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp" />
+
         <View
             android:layout_width="24dp"
             android:layout_height="24dp" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewTransactions"
+    <RadioGroup
+        android:id="@+id/radioGroupTheme"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:padding="8dp"
-        tools:listitem="@layout/item_transaction" />
-
-    <TextView
-        android:id="@+id/tvEmptyState"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_transactions_found"
-        android:textColor="@color/text_secondary_color"
-        android:textSize="16sp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:visibility="visible" />
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/topBar">
+
+        <RadioButton
+            android:id="@+id/rbLight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/theme_light"
+            android:textColor="@color/text_primary_color"
+            android:textSize="16sp"
+            android:padding="12dp"/>
+
+        <RadioButton
+            android:id="@+id/rbDark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/theme_dark"
+            android:textColor="@color/text_primary_color"
+            android:textSize="16sp"
+            android:padding="12dp"/>
+
+        <RadioButton
+            android:id="@+id/rbSystem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/theme_system"
+            android:textColor="@color/text_primary_color"
+            android:textSize="16sp"
+            android:padding="12dp"/>
+
+    </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

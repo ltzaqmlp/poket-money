@@ -10,7 +10,8 @@ import com.example.poketmoney.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySettingsBinding
+    private lateinit
+    var binding: ActivitySettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,10 +44,16 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // --- !!! 新增代码：为 "账户管理" 按钮设置点击事件 !!! ---
+        // --- 为 "账户管理" 按钮设置点击事件 (无变化) ---
         binding.btnAccountManagement.setOnClickListener {
-            // 1. 创建一个 Intent 跳转到 AccountManageActivity
             val intent = Intent(this, AccountManageActivity::class.java)
+            startActivity(intent)
+        }
+
+        // --- !!! 新增代码：为 "背景设置" 按钮设置点击事件 !!! ---
+        binding.btnBackgroundManagement.setOnClickListener {
+            // 1. 创建一个 Intent 跳转到 BackgroundSettingsActivity
+            val intent = Intent(this, BackgroundSettingsActivity::class.java)
             // 2. 启动 Activity
             startActivity(intent)
         }

@@ -5,17 +5,15 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="12dp"
-    android:background="@color/grey_800"
+    android:background="@color/app_surface_color"
     android:layout_marginBottom="8dp">
 
-    <!-- 图标和主副标题列 -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <!-- 图标 (这里暂时用一个 TextView 代替，可以后续替换为实际图标) -->
         <TextView
             android:id="@+id/tvIcon"
             android:layout_width="40dp"
@@ -32,7 +30,7 @@
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary_color"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="今天" />
@@ -41,12 +39,11 @@
             android:id="@+id/tvSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey_400"
+            android:textColor="@color/text_secondary_color"
             android:textSize="12sp"
             tools:text="2025年10月29日" />
     </LinearLayout>
 
-    <!-- 金额列 (收入、支出、结余) -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

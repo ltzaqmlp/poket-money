@@ -35,90 +35,75 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // (无变化)
     private val _activeLedgerId = MutableLiveData<Long>()
 
-    // (无变化) 暴露 "当前激活账本的名称"
+    // (无变化)
     val activeLedgerName: LiveData<String?> = _activeLedgerId.switchMap { id ->
         ledgerDao.getLedgerById(id).switchMap { ledger ->
             MutableLiveData(ledger?.name)
         }
     }
 
-    // 1. !!! 新增：暴露 "账本总数" LiveData !!!
-    /**
-     * (新增) 暴露账本总数的 LiveData。
-     * MainActivity 将观察此数据，以确定是否为 "新用户" (count == 0)。
-     * 它使用了我们在 LedgerDao 中添加的 getLedgerCount()。
-     */
+    // (无变化)
     val ledgerCount: LiveData<Int> = ledgerDao.getLedgerCount()
 
 
     /**
-     * 2. !!! 修改：'init' 块 !!!
-     * 我们不再在 init 启动时自动加载数据，
-     * 因为我们必须首先检查 ledgerCount 是否为 0。
+     * (无变化)
      */
     init {
-        // (空) - 数据加载现在由 loadDataForActiveLedger() 触发
+        // (空)
     }
 
     /**
-     * 3. !!! 新增：数据加载函数 !!!
-     * (我们将之前在 'init' 中的逻辑移到了这里)
-     * MainActivity 将在确认 ledgerCount > 0 后调用此函数。
+     * (无变化)
      */
     fun loadDataForActiveLedger() {
         viewModelScope.launch {
-            // (这是之前 init 中的逻辑)
             val currentId = LedgerManager.getActiveLedgerId(getApplication())
 
-            // (安全检查：如果 LedgerManager 存的 ID 不存在，
-            //  我们就获取第一个账本的 ID 并设为激活)
-            val ledgerExists = ledgerDao.getLedgerById(currentId).value != null
-            if (!ledgerExists) {
-                // (这种情况会在 "默认账本" 被删除后发生)
-                val firstLedger = ledgerDao.getFirstLedger()
-                if (firstLedger != null) {
-                    // 切换到数据库中的第一个账本
-                    LedgerManager.setActiveLedgerId(getApplication(), firstLedger.id)
-                    _activeLedgerId.value = firstLedger.id
-                } else {
-                    // (这种情况理论上不应该发生，因为 ledgerCount > 0)
-                    // 但作为防护，我们什么也不加载
-                    return@launch
-                }
+            // (安全检查：修复当 ID 不存在时的逻辑)
+            // (我们不能在协程中直接检查 LiveData.value)
+            val firstLedger = ledgerDao.getFirstLedger() // 尝试获取第一个账本
+
+            if (firstLedger == null) {
+                // (数据库中一个账本都没有，ledgerCount 应该为 0，MainActivity 会处理)
+                return@launch
+            }
+
+            // 检查当前 ID 是否有效
+            val currentLedger = ledgerDao.getLedgerById(currentId).value
+            if (currentLedger == null) {
+                // 如果 ID 无效 (例如被删除了)，则切换到第一个账本
+                LedgerManager.setActiveLedgerId(getApplication(), firstLedger.id)
+                _activeLedgerId.value = firstLedger.id
             } else {
+                // ID 有效
                 _activeLedgerId.value = currentId
             }
 
-            // (无变化)
             loadStats()
         }
     }
 
 
     /**
-     * (无变化) checkActiveLedger()
-     * 用于从 "新增页" 或 "账本管理页" 返回时刷新数据。
+     * (无变化)
      */
     fun checkActiveLedger() {
         val newLedgerId = LedgerManager.getActiveLedgerId(getApplication())
         if (newLedgerId != _activeLedgerId.value) {
-            // 账本 ID 已经改变了！
             _activeLedgerId.value = newLedgerId
-            loadStats() // 重新加载新账本的数据
+            loadStats()
         } else {
-            // 账本 ID 没有变，但我们可能从 "新增记录页" 返回了
-            loadStats() // 仍然需要刷新数据
+            loadStats()
         }
     }
 
-    // (无变化) loadStats()
+    // (!!! 1. 关键修改：loadStats() !!!)
     fun loadStats() {
         viewModelScope.launch {
             try {
-                // (确保 ID 已设置)
+                // (无变化)
                 val ledgerId = _activeLedgerId.value ?: run {
-                    // 如果 ID 仍然为空 (在 loadDataForActiveLedger 失败时)，
-                    // 尝试最后一次加载
                     val currentId = LedgerManager.getActiveLedgerId(getApplication())
                     _activeLedgerId.value = currentId
                     currentId
@@ -126,35 +111,84 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 val calendar = Calendar.getInstance()
 
-                // (无变化) 计算今天
+                // (!!! 2. 新增：获取月份和年份天数 !!!)
+                val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH).toString()
+                val daysInYear = calendar.getActualMaximum(Calendar.DAY_OF_YEAR).toString()
+
+                // (!!! 3. 修改：计算今天 !!!)
                 val todayStart = getStartOfDay(calendar.timeInMillis)
                 val todayEnd = getEndOfDay(calendar.timeInMillis)
                 val todayIncome = transactionDao.getTotalIncomeByDateRange(ledgerId, todayStart, todayEnd) ?: 0.0
                 val todayExpense = transactionDao.getTotalExpenseByDateRange(ledgerId, todayStart, todayEnd) ?: 0.0
-                val todayItem = StatItem("今天", dateFormat.format(Date(todayStart)), todayIncome, todayExpense, todayIncome - todayExpense, todayStart, todayEnd)
+                val todayItem = StatItem(
+                    iconText = "1", // (新增)
+                    title = "今天",
+                    subtitle = dateFormat.format(Date(todayStart)),
+                    income = todayIncome,
+                    expense = todayExpense,
+                    balance = todayIncome - todayExpense,
+                    startDate = todayStart,
+                    endDate = todayEnd
+                )
 
-                // (无变化) 计算本周
+                // (!!! 4. 修改：计算本周 !!!)
                 val (weekStart, weekEnd) = getCurrentWeekRange(calendar)
                 val weekIncome = transactionDao.getTotalIncomeByDateRange(ledgerId, weekStart, weekEnd) ?: 0.0
                 val weekExpense = transactionDao.getTotalExpenseByDateRange(ledgerId, weekStart, weekEnd) ?: 0.0
-                val weekItem = StatItem("本周", getWeekSubtitle(weekStart, weekEnd), weekIncome, weekExpense, weekIncome - weekExpense, weekStart, weekEnd)
+                val weekItem = StatItem(
+                    iconText = "7", // (新增)
+                    title = "本周",
+                    subtitle = getWeekSubtitle(weekStart, weekEnd),
+                    income = weekIncome,
+                    expense = weekExpense,
+                    balance = weekIncome - weekExpense,
+                    startDate = weekStart,
+                    endDate = weekEnd
+                )
 
-                // (无变化) 计算本月
+                // (!!! 5. 修改：计算本月 !!!)
                 val (monthStart, monthEnd) = getCurrentMonthRange(calendar)
                 val monthIncome = transactionDao.getTotalIncomeByDateRange(ledgerId, monthStart, monthEnd) ?: 0.0
                 val monthExpense = transactionDao.getTotalExpenseByDateRange(ledgerId, monthStart, monthEnd) ?: 0.0
-                val monthItem = StatItem("本月", getMonthSubtitle(monthStart, monthEnd), monthIncome, monthExpense, monthIncome - monthExpense, monthStart, monthEnd)
+                val monthItem = StatItem(
+                    iconText = daysInMonth, // (新增)
+                    title = "本月",
+                    subtitle = getMonthSubtitle(monthStart, monthEnd),
+                    income = monthIncome,
+                    expense = monthExpense,
+                    balance = monthIncome - monthExpense,
+                    startDate = monthStart,
+                    endDate = monthEnd
+                )
 
-                // (无变化) 计算今年
+                // (!!! 6. 修改：计算今年 !!!)
                 val (yearStart, yearEnd) = getCurrentYearRange(calendar)
                 val yearIncome = transactionDao.getTotalIncomeByDateRange(ledgerId, yearStart, yearEnd) ?: 0.0
                 val yearExpense = transactionDao.getTotalExpenseByDateRange(ledgerId, yearStart, yearEnd) ?: 0.0
-                val yearItem = StatItem("今年", getYearSubtitle(yearStart, yearEnd), yearIncome, yearExpense, yearIncome - yearExpense, yearStart, yearEnd)
+                val yearItem = StatItem(
+                    iconText = daysInYear, // (新增)
+                    title = "今年",
+                    subtitle = getYearSubtitle(yearStart, yearEnd),
+                    income = yearIncome,
+                    expense = yearExpense,
+                    balance = yearIncome - yearExpense,
+                    startDate = yearStart,
+                    endDate = yearEnd
+                )
 
-                // (无变化) 计算总计
+                // (!!! 7. 修改：计算总计 !!!)
                 val totalIncome = transactionDao.getTotalIncome(ledgerId) ?: 0.0
                 val totalExpense = transactionDao.getTotalExpense(ledgerId) ?: 0.0
-                val totalItem = StatItem("总计", "所有记录", totalIncome, totalExpense, totalIncome - totalExpense, 0L, 0L)
+                val totalItem = StatItem(
+                    iconText = "∑", // (新增)
+                    title = "总计",
+                    subtitle = "所有记录",
+                    income = totalIncome,
+                    expense = totalExpense,
+                    balance = totalIncome - totalExpense,
+                    startDate = 0L,
+                    endDate = 0L
+                )
 
                 _statItems.value = listOf(todayItem, weekItem, monthItem, yearItem, totalItem)
 

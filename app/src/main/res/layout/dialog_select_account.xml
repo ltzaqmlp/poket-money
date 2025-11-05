@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/grey_800">
+    android:background="@color/app_surface_color">
 
     <TextView
         android:id="@+id/tvDialogTitle"
@@ -27,7 +27,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/grey_700" />
+        android:background="@color/app_background_color" />
 
     <TextView
         android:id="@+id/btnAddAccount"

@@ -5,11 +5,10 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="16dp"
-    android:background="@color/grey_800"
+    android:background="@color/app_surface_color"
     android:layout_marginBottom="8dp"
     android:gravity="center_vertical">
 
-    <!-- 类别图标 (暂时用 TextView 代替) -->
     <TextView
         android:id="@+id/tvCategoryIcon"
         android:layout_width="40dp"
@@ -21,7 +20,6 @@
         android:textStyle="bold"
         tools:text="餐" />
 
-    <!-- 中间信息 (类别、备注、日期) -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -34,7 +32,7 @@
             android:id="@+id/tvCategoryName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary_color"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="餐饮" />
@@ -43,7 +41,7 @@
             android:id="@+id/tvNote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey_400"
+            android:textColor="@color/text_secondary_color"
             android:textSize="14sp"
             tools:text="和朋友一起吃晚餐"
             android:visibility="gone"
@@ -53,13 +51,12 @@
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey_500"
+            android:textColor="@color/text_secondary_color"
             android:textSize="12sp"
             tools:text="2025-10-29" />
 
     </LinearLayout>
 
-    <!-- 右侧金额 -->
     <TextView
         android:id="@+id/tvAmount"
         android:layout_width="wrap_content"

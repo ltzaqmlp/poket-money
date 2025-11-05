@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="@color/grey_800"
+    android:background="@color/app_surface_color"
     android:layout_marginStart="8dp"
     android:layout_marginEnd="8dp"
     android:layout_marginTop="4dp"
@@ -18,23 +18,23 @@
     android:gravity="center_vertical"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground"> <TextView
-    android:id="@+id/tvLedgerName"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:textColor="@color/white"
-    android:textSize="16sp"
-    tools:text="生活账本" />
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/tvLedgerName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/text_primary_color"
+        android:textSize="16sp"
+        tools:text="生活账本" />
 
     <ImageButton
         android:id="@+id/btnEditLedger"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:src="@android:drawable/ic_menu_edit"
-
-        app:tint="@color/grey_400"
-
+        app:tint="@color/text_secondary_color"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/edit"
         android:layout_marginStart="8dp"/>
