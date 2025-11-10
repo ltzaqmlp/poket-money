@@ -42,6 +42,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+<<<<<<< HEAD
     // (无变化)
     val ledgerCount: LiveData<Int> = ledgerDao.getLedgerCount()
 
@@ -82,10 +83,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             loadStats()
         }
+=======
+    // --- (!!! 1. 新增 LiveData !!!) ---
+    /**
+     * 用于通知 MainActivity 是否需要跳转到 "强制创建账本" 页。
+     */
+    private val _navigateToCreateLedger = MutableLiveData<Boolean>()
+    val navigateToCreateLedger: LiveData<Boolean> = _navigateToCreateLedger
+
+    /**
+     * (!!! 2. 修改：更新初始化逻辑 !!!)
+     * ViewModel 初始化时，立即调用数据刷新/检查逻辑
+     */
+    init {
+        refreshData()
+>>>>>>> temp-branch
     }
 
 
     /**
+<<<<<<< HEAD
      * (无变化)
      */
     fun checkActiveLedger() {
@@ -108,6 +125,73 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     _activeLedgerId.value = currentId
                     currentId
                 }
+=======
+     * (!!! 3. 新增函数 !!!)
+     * 重置导航信号
+     */
+    fun doneNavigatingToCreateLedger() {
+        _navigateToCreateLedger.value = false
+    }
+
+    /**
+     * (!!! 4. 关键修改：重构 checkActiveLedger() !!!)
+     *
+     * 这个函数现在是数据加载的核心。
+     * 它在 App 启动 (init) 和返回首页 (onResume) 时被调用。
+     *
+     * 职责：
+     * 1. 检查数据库中是否 *至少有一个* 账本。
+     * 2. 如果没有 -> 发送导航信号 (navigateToCreateLedger = true)。
+     * 3. 如果有 -> 确保 "激活ID" 有效，然后加载统计数据 (loadStats)。
+     */
+    fun refreshData() {
+        viewModelScope.launch {
+            val application = getApplication<Application>()
+            // 检查数据库中是否存在 *任何* 账本
+            val firstLedger = ledgerDao.getFirstLedger()
+
+            if (firstLedger == null) {
+                // --- Case 1: 数据库中没有账本 ---
+                // 发送信号，通知 MainActivity 跳转
+                _navigateToCreateLedger.postValue(true)
+                // (此时 _activeLedgerId 保持 null, loadStats() 不会执行)
+
+            } else {
+                // --- Case 2: 数据库中 *有* 账本 ---
+                var activeLedgerId = LedgerManager.getActiveLedgerId(application)
+
+                // 检查 SharedPreferences 中存的 ID 是否真的有效
+                val activeLedger = ledgerDao.getLedgerByIdSuspend(activeLedgerId)
+
+                if (activeLedger == null) {
+                    // ID 无效 (例如，该账本被删除了)
+                    // 自动切换到数据库中的第一个账本作为 "激活" 账本
+                    activeLedgerId = firstLedger.id
+                    LedgerManager.setActiveLedgerId(application, activeLedgerId)
+                }
+
+                // 确保 LiveData 更新
+                _activeLedgerId.value = activeLedgerId
+
+                // (重要) 只有在确认有账本后，才加载统计数据
+                loadStats()
+            }
+        }
+    }
+
+    // (!!! 5. 已移除旧的 checkActiveLedger() !!!)
+
+
+    /**
+     * (!!! 6. 修改：loadStats() 现在依赖 _activeLedgerId !!!)
+     * 只有在 _activeLedgerId 被设置 (即确认有账本) 后，此函数才会执行。
+     */
+    fun loadStats() {
+        viewModelScope.launch {
+            try {
+                // (关键检查) 如果 ledgerId 为 null (因为没有账本), 则不执行
+                val ledgerId = _activeLedgerId.value ?: return@launch
+>>>>>>> temp-branch
 
                 val calendar = Calendar.getInstance()
 
