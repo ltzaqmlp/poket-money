@@ -31,7 +31,7 @@ import java.text.DecimalFormat
 /**
  * 账户管理页面
  *
- * (!!! 已重构：实现了 增/删/改/查 全部功能 !!!)
+ * (!!! 已更新：现在根据 'activeLedgerId' 过滤账户 !!!)
  */
 class AccountManageActivity : AppCompatActivity() {
 
@@ -61,6 +61,9 @@ class AccountManageActivity : AppCompatActivity() {
     private lateinit var deleteIcon: Drawable
     private var currentAccountList = listOf<Account>() // 用于检查 "删除最后一个"
 
+    // 5. !!! (新增) 跟踪当前激活的账本ID !!!
+    private var activeLedgerId: Long = 1L
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -68,36 +71,39 @@ class AccountManageActivity : AppCompatActivity() {
         binding = ActivityAccountManageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 5. !!! 新增：初始化币种 Adapter !!!
+        // 6. !!! (新增) 获取当前激活的账本ID !!!
+        activeLedgerId = LedgerManager.getActiveLedgerId(this)
+
+        // 7. !!! 新增：初始化币种 Adapter !!!
         currencyAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, currencies)
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-        // 6. !!! 新增：初始化滑动删除的图标和背景 !!!
+        // 8. !!! 新增：初始化滑动删除的图标和背景 !!!
         swipeBackground = ColorDrawable(Color.RED)
         deleteIcon = ContextCompat.getDrawable(this, android.R.drawable.ic_menu_delete)!!
 
-        // 7. 返回按钮 (无变化)
+        // 9. 返回按钮 (无变化)
         binding.btnBack.setOnClickListener {
             finish()
         }
 
-        // 8. !!! 修改："新增账户" 按钮 !!!
+        // 10. !!! 修改："新增账户" 按钮 !!!
         //    (不再启动 Activity，而是显示弹窗)
         binding.fabAddAccount.setOnClickListener {
             // 传入 null 表示是 "新增模式"
             showAccountDialog(null)
         }
 
-        // 9. !!! 新增：初始化 RecyclerView !!!
+        // 11. !!! 新增：初始化 RecyclerView !!!
         setupRecyclerView()
 
-        // 10. !!! 新增：设置滑动删除 !!!
+        // 12. !!! 新增：设置滑动删除 !!!
         setupSwipeToDelete()
 
-        // 11. !!! 新增：开始观察数据库 !!!
+        // 13. !!! 新增：开始观察数据库 !!!
         observeAccountList()
 
-        // 12. 窗口边距 (无变化)
+        // 14. 窗口边距 (无变化)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -126,10 +132,11 @@ class AccountManageActivity : AppCompatActivity() {
     }
 
     /**
-     * (!!! 新增 !!!) 观察数据库 Account 表的 LiveData
+     * (!!! 关键修改：观察数据库 Account 表 (按 ledgerId 过滤) !!!)
      */
     private fun observeAccountList() {
-        accountDao.getAllAccounts().observe(this) { accountsList ->
+        // (!!! 修改：调用 getAllAccountsByLedger 并传入 activeLedgerId !!!)
+        accountDao.getAllAccountsByLedger(activeLedgerId).observe(this) { accountsList ->
             currentAccountList = accountsList // 保存副本
             adapter.submitList(accountsList)
             checkEmptyState(accountsList)
@@ -150,7 +157,8 @@ class AccountManageActivity : AppCompatActivity() {
     }
 
     /**
-     * (!!! 新增 !!!) 显示“新增”或“修改”账户的对话框
+     * (!!! 关键修改：新增账户时必须存入 ledgerId !!!)
+     * 显示“新增”或“修改”账户的对话框
      * @param account 如果为 null，则是 "新增模式"；否则为 "修改模式"
      */
     private fun showAccountDialog(account: Account?) {
@@ -213,6 +221,7 @@ class AccountManageActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 if (isEditMode) {
                     // --- 修改 ---
+                    // (ledgerId 在 copy() 中被保留，无需改动)
                     val updatedAccount = account!!.copy(
                         type = accountType,
                         currency = currency,
@@ -222,11 +231,13 @@ class AccountManageActivity : AppCompatActivity() {
                     accountDao.update(updatedAccount)
                 } else {
                     // --- 新增 ---
+                    // (!!! 关键：存入 activeLedgerId !!!)
                     val newAccount = Account(
                         type = accountType,
                         currency = currency,
                         balance = balance,
-                        note = noteValue
+                        note = noteValue,
+                        ledgerId = activeLedgerId // 关联到当前账本
                     )
                     accountDao.insert(newAccount)
                 }
@@ -302,6 +313,7 @@ class AccountManageActivity : AppCompatActivity() {
     private fun showDeleteConfirmationDialog(accountToDelete: Account, position: Int) {
 
         // 规则 1：不能删除最后一个账户
+        // (!!! 修改：现在是检查 *当前账本* 的最后一个账户 !!!)
         if (currentAccountList.size <= 1) {
             Toast.makeText(this, R.string.error_account_delete_last, Toast.LENGTH_LONG).show()
             adapter.notifyItemChanged(position) // 撤销滑动
@@ -323,8 +335,9 @@ class AccountManageActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     accountDao.delete(accountToDelete)
 
-                    // TODO: (未来) 检查是否删除了 "当前激活" 的账户
-                    // (目前账户功能还未与交易关联，此步骤暂不需要)
+                    // (注意：由于 Transaction.accountId 设置了 'ON DELETE SET NULL',
+                    //  删除账户时，关联的交易记录的 accountId 会自动变 null,
+                    //  这符合我们的需求——历史记录不丢失。)
                 }
                 dialog.dismiss()
             }

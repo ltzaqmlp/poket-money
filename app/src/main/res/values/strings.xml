@@ -10,6 +10,7 @@
     <string name="back">返回</string>
     <string name="amount_hint">金额</string>
     <string name="category_hint">分类</string>
+    <string name="account_hint">账户</string>
     <string name="date_hint">日期</string>
     <string name="note_hint">备注 (可选)</string>
     <string name="cancel">取消</string>
@@ -56,6 +57,8 @@
     <string name="account_manage_title">账户管理</string>
     <string name="no_accounts_found">还没有账户，点击 "+" 添加一个吧</string>
     <string name="add_account_title">新增账户</string>
+    <string name="add_new_account">+ 新增账户</string>
+    <string name="select_account_prompt">--- 请选择一个账户 ---</string>
     <string name="account_type_hint">账户类别 (如: 现金, 储蓄卡)</string>
     <string name="currency_hint">币种</string>
     <string name="balance_hint">初始余额</string>

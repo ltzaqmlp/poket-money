@@ -10,13 +10,18 @@ import androidx.room.Update
 
 /**
  * LedgerDao (账本数据访问对象)
+ * (!!! 已更新：Insert 方法现在返回 Long !!!)
  */
 @Dao
 interface LedgerDao {
 
-    // (无变化)
+    /**
+     * (!!! 关键修改 !!!)
+     * OnConflictStrategy.IGNORE：如果名称冲突（因为 name 是 unique），则忽略
+     * 返回值 Long：返回新插入项的 rowId (即自增的 ID)
+     */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(ledger: Ledger)
+    suspend fun insert(ledger: Ledger): Long
 
     // (无变化)
     @Update
@@ -26,7 +31,7 @@ interface LedgerDao {
     @Delete
     suspend fun delete(ledger: Ledger)
 
-    // (已修复Bug) 按 ID 倒序，确保最新的在最上面
+    // (无变化) 按 ID 倒序，确保最新的在最上面
     @Query("SELECT * FROM ledgers ORDER BY id DESC")
     fun getAllLedgers(): LiveData<List<Ledger>>
 
@@ -38,7 +43,7 @@ interface LedgerDao {
     @Query("SELECT * FROM ledgers ORDER BY id ASC LIMIT 1")
     suspend fun getFirstLedger(): Ledger?
 
-    // --- (!!! 1. 新增查询 !!!) ---
+    // (无变化)
     /**
      * 根据 ID 查询单个账本。
      * 我们返回 LiveData，以便 MainViewModel 可以观察它。
@@ -47,4 +52,12 @@ interface LedgerDao {
      */
     @Query("SELECT * FROM ledgers WHERE id = :id")
     fun getLedgerById(id: Long): LiveData<Ledger?>
+
+    // (无变化)
+    /**
+     * (新增) 根据 ID 查询单个账本 (suspend 版本)
+     * 用于在 ViewModel 中进行一次性检查。
+     */
+    @Query("SELECT * FROM ledgers WHERE id = :id")
+    suspend fun getLedgerByIdSuspend(id: Long): Ledger?
 }

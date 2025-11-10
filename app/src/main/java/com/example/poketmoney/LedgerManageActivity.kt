@@ -11,6 +11,8 @@ import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+// 2. !!! 新增：导入 OnBackPressedCallback !!!
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -26,7 +28,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
 /**
- * 账本管理页面 (已修复 Bug #2)
+ * 账本管理页面 (已修复 Bug #2, 已新增 "强制创建" 逻辑)
  */
 class LedgerManageActivity : AppCompatActivity() {
 
@@ -41,6 +43,9 @@ class LedgerManageActivity : AppCompatActivity() {
     private lateinit var swipeBackground: ColorDrawable
     private lateinit var deleteIcon: Drawable
 
+    // 3. !!! 新增：用于 "强制创建" 模式的标志 !!!
+    private var isFirstRun: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -50,7 +55,11 @@ class LedgerManageActivity : AppCompatActivity() {
         setContentView(binding.root)
         activeLedgerId = LedgerManager.getActiveLedgerId(this)
         swipeBackground = ColorDrawable(Color.RED)
+        // (修正警告：使用 ContextCompat.getDrawable，并且 ID 是 android.R.drawable.ic_menu_delete)
         deleteIcon = ContextCompat.getDrawable(this, android.R.drawable.ic_menu_delete)!!
+
+        // 4. !!! 新增：检查 Intent 标志 !!!
+        isFirstRun = intent.getBooleanExtra("IS_FIRST_RUN", false)
 
         // (无变化)
         binding.btnBack.setOnClickListener {
@@ -68,6 +77,24 @@ class LedgerManageActivity : AppCompatActivity() {
         // (无变化)
         setupSwipeToDelete()
         observeLedgers()
+
+        // 5. !!! 新增：处理 "强制创建" 模式的 UI !!!
+        if (isFirstRun) {
+            // 隐藏返回按钮
+            binding.btnBack.visibility = View.GONE
+
+            // 立即弹出创建对话框
+            showLedgerDialog(null)
+
+            // (重要) 拦截物理返回键
+            onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    // 如果是 "首次运行" 模式，禁止用户通过返回键退出
+                    // (什么也不做)
+                }
+            })
+        }
+
 
         // (无变化)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
@@ -87,22 +114,21 @@ class LedgerManageActivity : AppCompatActivity() {
     }
 
     /**
-     * 初始化 RecyclerView 和 Adapter (!!! BUG 修复处 !!!)
+     * 初始化 RecyclerView 和 Adapter (!!! 已修改 !!!)
      */
     private fun setupRecyclerView() {
         adapter = LedgerAdapter()
         binding.recyclerViewLedgers.adapter = adapter
         binding.recyclerViewLedgers.layoutManager = LinearLayoutManager(this)
 
-        // 2. !!! 交互 1: (单击列表项) -> 切换账本 (已修复) !!!
+        // 2. !!! 交互 1: (单击列表项) -> 切换账本 (已修改) !!!
         adapter.onItemClick = { ledger ->
             // 2.1. 更新全局 "激活" 账本 ID (无变化)
             LedgerManager.setActiveLedgerId(this, ledger.id)
 
-            // 2.2. (!!! 修复 !!!)
-            // (旧代码: finish())
-            //
-            // (新代码)
+            // 2.2. (!!! 修改 !!!)
+            // 无论是 "首次运行" 还是 "正常切换"，我们都希望返回 MainActivity
+
             // 创建一个指向 MainActivity (首页) 的 Intent
             val intent = Intent(this, MainActivity::class.java)
             // 添加标志 (FLAG_ACTIVITY_CLEAR_TOP)：
@@ -118,13 +144,19 @@ class LedgerManageActivity : AppCompatActivity() {
             finish()
         }
 
-        // 交互 2: (单击 "笔" 图标) -> 编辑账本 (无变化)
-        adapter.onEditClick = { ledger ->
+        // 交互 2: (单击 "笔" 图标) -> 编辑账本 (!!! 错误修复 !!!)
+        adapter.onEditClick = editClick@{ ledger ->
+            // (在 "首次运行" 模式下，用户不应该能点到这个，但为了安全起见)
+            // (!!! 修复：使用 return@editClick 标签 !!!)
+            if (isFirstRun) return@editClick
+
             showLedgerDialog(ledger)
         }
     }
 
-    // (无变化)
+    /**
+     * (!!! 已修改：增加 isFirstRun 检查 !!!)
+     */
     private fun setupSwipeToDelete() {
         val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(
             0, // 不支持拖拽
@@ -141,6 +173,14 @@ class LedgerManageActivity : AppCompatActivity() {
             // onSwiped 在用户滑动列表项时触发
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
+
+                // (!!! 新增检查 !!!)
+                if (isFirstRun) {
+                    // 强制创建模式下，不允许删除
+                    adapter.notifyItemChanged(position)
+                    return
+                }
+
                 val ledgerToDelete = adapter.currentList[position]
 
                 // 显示删除确认对话框
@@ -157,6 +197,13 @@ class LedgerManageActivity : AppCompatActivity() {
                 actionState: Int,
                 isCurrentlyActive: Boolean
             ) {
+                // (!!! 新增检查 !!!)
+                if (isFirstRun) {
+                    // 强制创建模式下，不允许滑动
+                    super.onChildDraw(c, recyclerView, viewHolder, 0f, dY, actionState, false)
+                    return
+                }
+
                 val itemView = viewHolder.itemView
                 val iconMargin = (itemView.height - deleteIcon.intrinsicHeight) / 2
 
@@ -189,7 +236,9 @@ class LedgerManageActivity : AppCompatActivity() {
     }
 
 
-    // (无变化)
+    /**
+     * (!!! 已修改：处理 isFirstRun 模式下的 UI 和逻辑 !!!)
+     */
     private fun showLedgerDialog(ledger: Ledger?) {
         val isEditMode = ledger != null
 
@@ -197,14 +246,22 @@ class LedgerManageActivity : AppCompatActivity() {
 
         if (isEditMode) {
             dialogBinding.tvDialogTitle.text = getString(R.string.edit_ledger_dialog_title)
-            dialogBinding.etLedgerName.setText(ledger?.name)
+            // (!!! 修复警告：移除不必要的 '?.' !!!)
+            dialogBinding.etLedgerName.setText(ledger.name)
         } else {
             dialogBinding.tvDialogTitle.text = getString(R.string.add_ledger_dialog_title)
         }
 
+        // (!!! 新增：处理 isFirstRun !!!)
+        if (isFirstRun) {
+            // 隐藏 "取消" 按钮
+            dialogBinding.btnDialogCancel.visibility = View.GONE
+        }
+
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogBinding.root)
-            .setCancelable(false)
+            // (!!! 修改：isFirstRun 模式下不可取消 !!!)
+            .setCancelable(if (isFirstRun) false else true)
             .show()
 
         dialogBinding.btnDialogSave.setOnClickListener {
@@ -215,9 +272,24 @@ class LedgerManageActivity : AppCompatActivity() {
 
                 if (validationError == null) {
                     if (isEditMode) {
-                        ledgerDao.update(ledger!!.copy(name = newName))
+                        // (正常编辑模式)
+                        // (!!! 修复警告：移除不必要的 '!!' !!!)
+                        ledgerDao.update(ledger.copy(name = newName))
                     } else {
-                        ledgerDao.insert(Ledger(name = newName))
+                        // (新增模式)
+                        val newLedger = Ledger(name = newName)
+                        // (!!! 修正：使用 LedgerDao.insert 返回的 ID !!!)
+                        val newLedgerId = ledgerDao.insert(newLedger)
+
+                        // (!!! 新增：如果是首次运行，自动激活并返回 !!!)
+                        if (isFirstRun) {
+                            // 1. 将新创建的账本设为 "激活" 账本
+                            // (注意：Room insert 返回的是 rowId，在自增主键下就是新 ID)
+                            LedgerManager.setActiveLedgerId(this@LedgerManageActivity, newLedgerId)
+
+                            // 2. 关闭当前 Activity，返回 MainActivity
+                            finish()
+                        }
                     }
                     dialog.dismiss()
 
@@ -228,25 +300,27 @@ class LedgerManageActivity : AppCompatActivity() {
         }
 
         dialogBinding.btnDialogCancel.setOnClickListener {
+            // (isFirstRun 模式下此按钮不可见，所以无需检查)
             dialog.dismiss()
         }
     }
 
-    // (无变化)
+    /**
+     * (!!! 已修改：优化逻辑以移除 "Redundant if" 警告 !!!)
+     */
     private suspend fun validateLedgerName(newName: String, currentId: Long?): String? {
         if (newName.isEmpty()) {
             return getString(R.string.error_ledger_name_empty)
         }
 
         val existingLedger = ledgerDao.findLedgerByName(newName)
-        if (existingLedger != null) {
-            if (currentId == null) {
-                return getString(R.string.error_ledger_name_exists)
-            } else {
-                if (existingLedger.id != currentId) {
-                    return getString(R.string.error_ledger_name_exists)
-                }
-            }
+
+        // (!!! 优化后的逻辑 !!!)
+        // 检查：
+        // 1. 账本是否已存在
+        // 2. 并且 ( (这是 "新增" 模式) OR (这是 "编辑" 模式且 ID 不匹配) )
+        if (existingLedger != null && (currentId == null || existingLedger.id != currentId)) {
+            return getString(R.string.error_ledger_name_exists)
         }
 
         return null
@@ -254,6 +328,8 @@ class LedgerManageActivity : AppCompatActivity() {
 
     // (无变化)
     private fun showDeleteConfirmationDialog(ledgerToDelete: Ledger, position: Int) {
+
+        // (此函数在 isFirstRun=true 时不会被调用，无需改动)
 
         if (currentLedgerList.size <= 1) {
             Toast.makeText(this, R.string.error_ledger_delete_last, Toast.LENGTH_LONG).show()
@@ -264,7 +340,7 @@ class LedgerManageActivity : AppCompatActivity() {
         val message = Html.fromHtml(getString(R.string.delete_ledger_dialog_message, ledgerToDelete.name), Html.FROM_HTML_MODE_LEGACY)
 
         MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.delete_category_dialog_title) // (勘误：这里应该用 R.string.delete_ledger_dialog_title，我将在下一步修复)
+            .setTitle(R.string.delete_ledger_dialog_title) // (!!! 已修复：使用了正确的 Title !!!)
             .setMessage(message)
             .setNegativeButton(R.string.cancel) { dialog, _ ->
                 adapter.notifyItemChanged(position)
@@ -289,8 +365,17 @@ class LedgerManageActivity : AppCompatActivity() {
     }
 
 
-    // (无变化)
+    /**
+     * (!!! 已修改：增加 isFirstRun 检查 !!!)
+     */
     private fun checkEmptyState(ledgers: List<Ledger>) {
+        // (!!! 新增：在 "首次运行" 模式下，我们 *不* 显示空状态，而是等待对话框)
+        if (isFirstRun) {
+            binding.tvEmptyState.visibility = View.GONE
+            binding.recyclerViewLedgers.visibility = View.GONE
+            return
+        }
+
         if (ledgers.isEmpty()) {
             binding.tvEmptyState.visibility = View.VISIBLE
             binding.recyclerViewLedgers.visibility = View.GONE
